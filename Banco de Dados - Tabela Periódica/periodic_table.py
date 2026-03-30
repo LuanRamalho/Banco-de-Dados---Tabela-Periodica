@@ -6,14 +6,14 @@ class TabelaPeriodica(tk.Tk):
         super().__init__()
         self.title("Tabela Periódica Interativa")
         self.geometry("1100x700")
-        self.configure(bg="#1e1e1e") # Fundo escuro para visual moderno
+        self.configure(bg="#100f0f") 
 
         # Permite que o container principal expanda com a janela
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
         # Frame da Tabela (Grade)
-        self.grid_frame = tk.Frame(self, bg="#1e1e1e")
+        self.grid_frame = tk.Frame(self, bg="#fffcfc")
         self.grid_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Frame da Legenda (Rodapé)
@@ -52,7 +52,7 @@ class TabelaPeriodica(tk.Tk):
         celula.grid(row=linha, column=coluna, sticky="nsew", padx=2, pady=2)
 
         # Efeitos de Hover
-        def on_enter(e): celula.config(bg="#FFFFFF")
+        def on_enter(e): celula.config(bg="#0E0086")
         def on_leave(e): celula.config(bg=cor_base)
 
         # Textos do elemento
@@ -72,41 +72,59 @@ class TabelaPeriodica(tk.Tk):
             widget.bind("<Leave>", on_leave)
 
     def mostrar_detalhes(self, el):
-        # Janela Popup
+        # Criação da janela popup (Toplevel)
         popup = tk.Toplevel(self)
-        popup.title(f"Detalhes - {el['Nome']}")
-        popup.geometry("300x250")
-        popup.configure(bg="#2d2d30")
+        popup.title(f"Detalhes: {el['Nome']}")
+        popup.geometry("350x300")
+        popup.configure(bg="#2d2d30") # Fundo grafite escuro
         popup.resizable(False, False)
         
-        # Centraliza o popup em relação à tela principal
+        # Faz a janela ser modal (focar nela até fechar)
         popup.transient(self)
         popup.grab_set()
 
-        # Cabeçalho do popup
-        header = tk.Frame(popup, bg=el["CorHex"], height=60)
+        # --- Cabeçalho Colorido ---
+        header = tk.Frame(popup, bg=el["CorHex"], height=80)
         header.pack(fill="x")
         header.pack_propagate(False)
 
-        tk.Label(header, text=el["Simbolo"], font=("Segoe UI", 24, "bold"), bg=el["CorHex"], fg="black").pack(side="left", padx=15)
-        tk.Label(header, text=el["Nome"], font=("Segoe UI", 14), bg=el["CorHex"], fg="black").pack(side="left", fill="y", pady=15)
+        # Símbolo em destaque no cabeçalho
+        tk.Label(header, text=el["Simbolo"], font=("Segoe UI", 32, "bold"), 
+                 bg=el["CorHex"], fg="black").pack(side="left", padx=20)
+        
+        # Nome do elemento ao lado do símbolo
+        tk.Label(header, text=el["Nome"].upper(), font=("Segoe UI", 14, "bold"), 
+                 bg=el["CorHex"], fg="black").pack(side="left", pady=20)
 
-        # Informações detalhadas
-        info_frame = tk.Frame(popup, bg="#2d2d30")
-        info_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        # --- Corpo com Informações Técnicas ---
+        info_container = tk.Frame(popup, bg="#2d2d30")
+        info_container.pack(fill="both", expand=True, padx=25, pady=20)
 
-        infos = [
-            ("Número Atômico:", el["NumeroAtomico"]),
-            ("Peso Atômico:", el["PesoAtomico"]),
-            ("Coluna (Grupo):", el["Coluna"]),
-            ("Linha (Período):", el["Linha"])
+        # Lista de dados conforme solicitado
+        dados = [
+            ("Número Atômico", el["NumeroAtomico"]),
+            ("Símbolo Atômico", el["Simbolo"]),
+            ("Nome Completo", el["Nome"]),
+            ("Peso Atômico", f"{el['PesoAtomico']} u")
         ]
 
-        for desc, valor in infos:
-            row_frame = tk.Frame(info_frame, bg="#2d2d30")
-            row_frame.pack(fill="x", pady=5)
-            tk.Label(row_frame, text=desc, font=("Segoe UI", 10, "bold"), bg="#2d2d30", fg="#aaaaaa").pack(side="left")
-            tk.Label(row_frame, text=str(valor), font=("Segoe UI", 10), bg="#2d2d30", fg="white").pack(side="right")
+        for label, valor in dados:
+            row = tk.Frame(info_container, bg="#2d2d30")
+            row.pack(fill="x", pady=6)
+            
+            # Rótulo (ex: "Peso Atômico")
+            tk.Label(row, text=f"{label}:", font=("Segoe UI", 10, "bold"), 
+                     bg="#2d2d30", fg="#888888").pack(side="left")
+            
+            # Valor (ex: "1.008 u")
+            tk.Label(row, text=str(valor), font=("Segoe UI", 11), 
+                     bg="#2d2d30", fg="white").pack(side="right")
+
+        # Botão para fechar
+        btn_fechar = tk.Button(popup, text="FECHAR", command=popup.destroy, 
+                               bg="#444444", fg="white", font=("Segoe UI", 9, "bold"),
+                               relief="flat", cursor="hand2", activebackground="#666666")
+        btn_fechar.pack(side="bottom", fill="x", padx=25, pady=15)
 
     def criar_legenda(self):
         # Mapeamento inferido pelas cores fornecidas no seu JSON
